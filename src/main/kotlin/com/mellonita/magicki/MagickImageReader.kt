@@ -99,7 +99,7 @@ class MagickImageReader(spi: ImageReaderSpi) : ImageReader(spi) {
         val rawSize = 4L * width.toLong() * height.toLong()
         if (rawSize > Int.MAX_VALUE) throw IIOException("Image is too large to buffer in memory")
         val raw = ByteArray(rawSize.toInt())
-        bridgeInstance.convertToRawABGR(width, height, raw, forceSRGB = true, autoOrient = true)
+        bridgeInstance.convertToRawRGBA(width, height, raw, forceSRGB = true, autoOrient = true)
 
         val dataBuffer = raster.dataBuffer as? DataBufferByte
             ?: throw IIOException("Unexpected destination buffer type: ${raster.dataBuffer.javaClass.name}")
@@ -127,10 +127,10 @@ class MagickImageReader(spi: ImageReaderSpi) : ImageReader(spi) {
             val redOffset = bandOffsets[3]
             repeat(rowLimit) {
                 val srcIndex = srcRowIndex + srcX * 4
-                destData[destPixelPtr + alphaOffset] = raw[srcIndex]       // A
-                destData[destPixelPtr + blueOffset] = raw[srcIndex + 1]    // B
-                destData[destPixelPtr + greenOffset] = raw[srcIndex + 2]   // G
-                destData[destPixelPtr + redOffset] = raw[srcIndex + 3]     // R
+                destData[destPixelPtr + alphaOffset] = raw[srcIndex + 3]   // A
+                destData[destPixelPtr + blueOffset] = raw[srcIndex + 2]    // B
+                destData[destPixelPtr + greenOffset] = raw[srcIndex + 1]   // G
+                destData[destPixelPtr + redOffset] = raw[srcIndex]         // R
                 destPixelPtr += sampleModel.pixelStride
                 srcX += periodX
             }

@@ -18,7 +18,7 @@ interface MagickBridge : AutoCloseable {
     fun canIdentify(): Boolean
     fun identify(): IdentifyInfo
     fun readBasicMetadata(): BasicMeta
-    fun convertToRawABGR(w: Int, h: Int, outABGR: ByteArray, forceSRGB: Boolean, autoOrient: Boolean)
+    fun convertToRawRGBA(w: Int, h: Int, outRGBA: ByteArray, forceSRGB: Boolean, autoOrient: Boolean)
 }
 
 /** Process wrapper + probing helpers shared by all ImageMagick major versions. */
@@ -99,17 +99,17 @@ internal class DefaultMagickBridge(
         else -> null
     }
 
-    override fun convertToRawABGR(
+    override fun convertToRawRGBA(
         w: Int,
         h: Int,
-        outABGR: ByteArray,
+        outRGBA: ByteArray,
         forceSRGB: Boolean,
         autoOrient: Boolean
     ) {
         val needLong = 4L * w.toLong() * h.toLong()
         require(needLong <= Int.MAX_VALUE) { "Image is too large to decode into a contiguous buffer (4*w*h overflow)" }
-        require(outABGR.size.toLong() >= needLong) {
-            "Output buffer too small: need $needLong, have ${outABGR.size}"
+        require(outRGBA.size.toLong() >= needLong) {
+            "Output buffer too small: need $needLong, have ${outRGBA.size}"
         }
         val need = needLong.toInt()
 
@@ -123,7 +123,7 @@ internal class DefaultMagickBridge(
         if (forceSRGB) {
             args += listOf("-colorspace", "sRGB")
         }
-        args += "abgr:-"
+        args += "rgba:-"
 
         val cmd = cli.convert(*args.toTypedArray())
         val p = ProcessBuilder(cmd).start()
@@ -144,7 +144,7 @@ internal class DefaultMagickBridge(
             while (copied < need) {
                 val n = ins.read(buf); if (n < 0) break
                 val toCopy = minOf(n, need - copied)
-                System.arraycopy(buf, 0, outABGR, copied, toCopy)
+                System.arraycopy(buf, 0, outRGBA, copied, toCopy)
                 copied += toCopy
             }
         }

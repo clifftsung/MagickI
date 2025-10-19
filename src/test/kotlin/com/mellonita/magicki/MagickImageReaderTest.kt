@@ -1,10 +1,10 @@
 package com.mellonita.magicki
 
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.awt.image.BufferedImage
 import java.nio.file.Paths
 import javax.imageio.IIOException
 import javax.imageio.ImageIO
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -19,6 +19,7 @@ class MagickImageReaderTest {
         val magickAvailable = runCatching {
             MagickBridgeFactory.fromSource(inputFile).use { it.canIdentify() }
         }.getOrDefault(false)
+
         assumeTrue(magickAvailable) {
             "ImageMagick identify cannot decode HEIC test image; skipping test"
         }
