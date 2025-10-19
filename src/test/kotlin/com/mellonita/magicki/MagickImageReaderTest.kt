@@ -4,11 +4,7 @@ import java.awt.image.BufferedImage
 import java.nio.file.Paths
 import javax.imageio.IIOException
 import javax.imageio.ImageIO
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlin.test.*
 
 class MagickImageReaderTest {
     private val heicImagePath = Paths.get("src", "test", "resources", "image1.heic")
@@ -40,7 +36,7 @@ class MagickImageReaderTest {
             }
 
             assertNotNull(reader, "MagickImageReader was not discovered via ImageIO service registry")
-            val magickReader = reader!!
+            val magickReader = reader
 
             try {
                 stream.seek(0)
@@ -95,7 +91,7 @@ class MagickImageReaderTest {
         }
 
         assertNotNull(reader, "MagickImageReader was not discovered via ImageIO service registry")
-        val magickReader = reader!!
+        val magickReader = reader
 
         try {
             magickReader.setInput(inputFile)
