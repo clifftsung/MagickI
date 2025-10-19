@@ -18,12 +18,8 @@ This project is not yet published to Maven Central. You can depend on it directl
 
 ```kotlin
 sourceControl {
-    gitRepository("https://github.com/clifftsung/MagickI.git") {
+    gitRepository(uri("https://github.com/clifftsung/MagickI.git")) {
         producesModule("com.mellonita.magicki:magicki")
-        // Uncomment one of the following lines to pin the revision you want to build:
-        // tag("v0.1")
-        // branch("master")
-        // commit("abcdef1234567890abcdef1234567890abcdef12")
     }
 }
 ```
@@ -31,9 +27,11 @@ sourceControl {
 Project build script:
 
 ```kotlin
-dependencies {
-    implementation("com.mellonita.magicki:magicki")
-}
+    implementation("com.mellonita.magicki:magicki") {
+        version {
+            branch = "master"
+        }
+    }
 ```
 
 Running `./gradlew build` will clone this repository, compile the plugin, and make it available to your project.
