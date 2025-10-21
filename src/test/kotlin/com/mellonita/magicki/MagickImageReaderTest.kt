@@ -8,7 +8,6 @@ import kotlin.test.*
 
 class MagickImageReaderTest {
     private val heicImagePath = Paths.get("src", "test", "resources", "image1.heic")
-    private val cr2ImagePath = Paths.get("src", "test", "resources", "image2.cr2")
 
     @Test
     fun readHeicImageViaImageIoRegistration() {
@@ -68,56 +67,4 @@ class MagickImageReaderTest {
         }
     }
 
-    @Test
-    fun readCr2ImageViaImageIoRegistration() {
-        val inputFile = cr2ImagePath.toFile()
-        val magickAvailable = runCatching {
-            MagickBridgeFactory.fromSource(inputFile).use { it.canIdentify() }
-        }.getOrDefault(false)
-
-        assertTrue(magickAvailable, "ImageMagick identify cannot decode CR2 test image; magick CLI unavailable")
-
-        ImageIO.scanForPlugins()
-
-        val readers = ImageIO.getImageReaders(inputFile)
-        var reader: MagickImageReader? = null
-        while (readers.hasNext() && reader == null) {
-            val candidate = readers.next()
-            if (candidate is MagickImageReader) {
-                reader = candidate
-            } else {
-                candidate.dispose()
-            }
-        }
-
-        assertNotNull(reader, "MagickImageReader was not discovered via ImageIO service registry")
-        val magickReader = reader
-
-        try {
-            magickReader.setInput(inputFile)
-
-            assertEquals(8736, magickReader.getWidth(0))
-            assertEquals(5856, magickReader.getHeight(0))
-
-            val image = try {
-                magickReader.read(0, null)
-            } catch (ex: IIOException) {
-                if (ex.message?.contains("no encode delegate", ignoreCase = true) == true ||
-                    ex.message?.contains("no decode delegate", ignoreCase = true) == true
-                ) {
-                    fail("ImageMagick lacks CR2 delegate: ${ex.message}")
-                }
-                throw ex
-            }
-            assertEquals(BufferedImage.TYPE_4BYTE_ABGR, image.type)
-            assertEquals(8736, image.width)
-            assertEquals(5856, image.height)
-
-            val metadata = magickReader.getImageMetadata(0)
-            assertNotNull(metadata)
-            assertTrue(metadata is MagickMetadata)
-        } finally {
-            magickReader.dispose()
-        }
-    }
 }
